@@ -28,9 +28,13 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            cursor: default; 
+            cursor: default;
             touch-action: none;
             transition: background-color 0.1s;
+        }
+
+        .cursor-off {
+            cursor: none;
         }
 
         .logo-mark {
@@ -46,6 +50,39 @@
             width: 100%;
             height: auto;
             display: block;
+        }
+
+        .parallax-layer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            will-change: transform;
+            transition: transform 0.15s ease-out;
+            mix-blend-mode: screen;
+            opacity: 0.45;
+            z-index: 200;
+        }
+
+        .layer-back {
+            background:
+                radial-gradient(circle at 20% 20%, rgba(255, 0, 0, 0.12), transparent 40%),
+                radial-gradient(circle at 80% 10%, rgba(255, 0, 0, 0.08), transparent 35%),
+                radial-gradient(circle at 60% 70%, rgba(255, 0, 0, 0.1), transparent 45%);
+            filter: blur(8px);
+        }
+
+        .layer-mid {
+            background:
+                repeating-linear-gradient(120deg, rgba(255, 255, 255, 0.04) 0, rgba(255, 255, 255, 0.04) 12px, transparent 12px, transparent 28px),
+                repeating-linear-gradient(-120deg, rgba(255, 0, 0, 0.05) 0, rgba(255, 0, 0, 0.05) 10px, transparent 10px, transparent 32px);
+        }
+
+        .layer-front {
+            background:
+                radial-gradient(circle at 30% 40%, rgba(255, 255, 255, 0.14), transparent 22%),
+                radial-gradient(circle at 70% 60%, rgba(255, 0, 0, 0.16), transparent 18%),
+                radial-gradient(circle at 50% 20%, rgba(255, 255, 255, 0.1), transparent 18%);
+            filter: blur(2px);
         }
 
         /* --- CRT EFFECTS --- */
@@ -109,7 +146,7 @@
         #runaway-btn {
             margin-top: 50px;
             padding: 15px 30px;
-            background: black;
+            background: linear-gradient(135deg, #0b0b0b, #1a0202);
             color: var(--stranger-red);
             border: 2px solid var(--stranger-red);
             font-family: 'Libre Baskerville', serif;
@@ -125,6 +162,8 @@
             -webkit-tap-highlight-color: transparent;
             white-space: nowrap;
         }
+
+        #runaway-btn:hover { box-shadow: 0 0 22px rgba(255,0,0,0.8); }
 
         #runaway-btn:active { background: var(--stranger-red); color: black; }
 
@@ -210,6 +249,10 @@
         <img src="logo.png" alt="GDG logo">
     </div>
 
+    <div class="parallax-layer layer-back" data-depth="8"></div>
+    <div class="parallax-layer layer-mid" data-depth="16"></div>
+    <div class="parallax-layer layer-front" data-depth="24"></div>
+
     <div id="scanlines"></div>
     <div id="vignette"></div>
     <div id="flashlight"></div>
@@ -227,12 +270,12 @@
     <button id="runaway-btn">OPEN THE GATE</button>
 
     <div class="reveal-container" id="reveal-div">
-        <div class="meme-text">KYU NAHI HO RAHI PADHAI?</div>
+        <div class="meme-text">KYU NAHI HO RAHI PADHAI? 😂</div>
         <div style="font-family: 'Libre Baskerville', serif; font-size: 1.5rem; color: #fff; margin-top: 20px;">
-            FIRST TIME IN IET
+            FIRST TIME IN IET 
         </div>
         <div class="sub-reveal">
-            SOMETHING BIG COMING ON 12-12-2025
+           404 resolved → Countdown ends 12/12/2025
         </div>
     </div>
 
@@ -244,6 +287,8 @@
         const btn = document.getElementById('runaway-btn');
         const content = document.querySelector('.content-wrapper');
         const revealDiv = document.getElementById('reveal-div');
+        const parallaxLayers = document.querySelectorAll('.parallax-layer');
+        let lastInputWasTouch = false;
 
         // GAME VARIABLES
         let clicks = 0;
@@ -259,8 +304,28 @@
 
         // 2. FLASHLIGHT
         document.addEventListener('mousemove', (e) => {
+            lastInputWasTouch = false;
             flashlight.style.setProperty('--x', e.clientX + 'px');
             flashlight.style.setProperty('--y', e.clientY + 'px');
+
+            const xRatio = (e.clientX / window.innerWidth) - 0.5;
+            const yRatio = (e.clientY / window.innerHeight) - 0.5;
+            setParallax(xRatio * 50, yRatio * 30);
+        });
+
+        document.addEventListener('touchmove', (e) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+            lastInputWasTouch = true;
+            const xRatio = (touch.clientX / window.innerWidth) - 0.5;
+            const yRatio = (touch.clientY / window.innerHeight) - 0.5;
+            setParallax(xRatio * 50, yRatio * 30);
+        });
+
+        document.addEventListener('touchstart', (e) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+            lastInputWasTouch = true;
         });
 
         // 3. MOVE BUTTON FUNCTION
@@ -312,6 +377,30 @@
                 teleportButton();
             }
         });
+
+        // Parallax engine
+        function setParallax(xOffset, yOffset) {
+            parallaxLayers.forEach(layer => {
+                const depth = parseFloat(layer.dataset.depth || 0);
+                const moveX = xOffset * (depth / 20);
+                const moveY = yOffset * (depth / 20);
+                layer.style.transform = `translate3d(${moveX}px, ${moveY}px, 0)`;
+            });
+        }
+        setParallax(0, 0);
+
+        // Cursor flicker effect (desktop only)
+        function scheduleCursorFlicker() {
+            const delay = 2000 + Math.random() * 2500;
+            setTimeout(() => {
+                if (!lastInputWasTouch) {
+                    document.body.classList.add('cursor-off');
+                    setTimeout(() => document.body.classList.remove('cursor-off'), 120 + Math.random() * 180);
+                }
+                scheduleCursorFlicker();
+            }, delay);
+        }
+        scheduleCursorFlicker();
 
         // 6. ENDING SEQUENCE
         function triggerEnding() {
