@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>404 | SYSTEM FAILURE</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&display=swap" rel="stylesheet">
+
+    <style>
+        :root {
+            --base-color: #050505;
+            --stranger-red: #ff0000;
+            --glow-color: rgba(255, 0, 0, 0.5);
+        }
+
+        body {
+            background-color: var(--base-color);
+            color: #ffffff;
+            font-family: 'Courier New', Courier, monospace;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: default; 
+            touch-action: none;
+            transition: background-color 0.1s;
+        }
+
+        .logo-mark {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            width: clamp(80px, 12vw, 140px);
+            z-index: 1100;
+            filter: drop-shadow(0 0 8px rgba(0, 0, 0, 0.6));
+        }
+
+        .logo-mark img {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        /* --- CRT EFFECTS --- */
+        #scanlines {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px;
+            z-index: 900; pointer-events: none;
+        }
+
+        #vignette {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, transparent 50%, black 100%);
+            z-index: 901; pointer-events: none;
+        }
+
+        /* --- FLASHLIGHT --- */
+        #flashlight {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle 300px at var(--x, 50%) var(--y, 50%), transparent 0%, rgba(0, 0, 0, 0.9) 50%, rgba(0, 0, 0, 1) 100%);
+            z-index: 500; pointer-events: none;
+        }
+
+        /* --- CONTENT --- */
+        .content-wrapper {
+            z-index: 600; text-align: center; position: relative;
+            filter: drop-shadow(0 0 10px red);
+            transition: opacity 0.5s;
+        }
+
+        h1 {
+            font-family: 'Libre Baskerville', serif;
+            font-size: 4rem;
+            color: transparent;
+            -webkit-text-stroke: 2px var(--stranger-red);
+            text-transform: uppercase;
+            letter-spacing: -2px;
+            margin: 0;
+            position: relative;
+            animation: textFlicker 4s infinite;
+        }
+        
+        h1::before {
+            content: attr(data-text);
+            position: absolute; top: 0; left: 0; width: 100%;
+            color: var(--stranger-red); opacity: 0.3; filter: blur(10px);
+            z-index: -1; animation: textFlicker 4s infinite reverse;
+        }
+
+        .bar {
+            height: 4px; width: 80%; background: var(--stranger-red);
+            margin: 10px auto; box-shadow: 0 0 15px var(--stranger-red);
+        }
+
+        p {
+            font-family: 'Courier New', Courier, monospace; color: #ddd;
+            font-size: 1.2rem; letter-spacing: 2px; text-shadow: 0 0 5px red;
+        }
+
+        /* --- THE BUTTON --- */
+        #runaway-btn {
+            margin-top: 50px;
+            padding: 15px 30px;
+            background: black;
+            color: var(--stranger-red);
+            border: 2px solid var(--stranger-red);
+            font-family: 'Libre Baskerville', serif;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            position: absolute; 
+            top: 70%;
+            box-shadow: 0 0 15px var(--stranger-red);
+            transition: top 0.1s, left 0.1s; 
+            z-index: 700;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            white-space: nowrap;
+        }
+
+        #runaway-btn:active { background: var(--stranger-red); color: black; }
+
+        /* --- INTRO --- */
+        #intro-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: black; z-index: 1000;
+            display: flex; justify-content: center; align-items: center;
+            transition: opacity 1.5s ease;
+        }
+        
+        #enter-btn {
+            background: transparent; color: red; font-size: 2rem;
+            border: none; cursor: pointer; font-family: 'Creepster', cursive;
+            letter-spacing: 5px; animation: pulse 2s infinite;
+        }
+
+        /* --- REVEAL STYLES --- */
+        .reveal-container {
+            display: none;
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            text-align: center;
+            z-index: 800;
+        }
+
+        .meme-text {
+            font-family: 'Creepster', cursive;
+            font-size: 4rem;
+            color: white;
+            text-shadow: 0 0 20px red, 4px 4px 0px black;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            animation: shake 0.5s infinite;
+        }
+
+        .sub-reveal {
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            color: red;
+            background: black;
+            display: inline-block;
+            padding: 10px;
+            border: 1px solid red;
+            margin-top: 20px;
+        }
+
+        @keyframes textFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; text-shadow: 0 0 10px var(--stranger-red); }
+            20%, 24%, 55% { opacity: 0.1; text-shadow: none; }
+        }
+
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 2rem; }
+            .meme-text { font-size: 2.5rem; }
+            #flashlight { opacity: 0.7; }
+        }
+    </style>
+</head>
+<body>
+
+    <audio id="bg-music" src="Stranger_Things.MP3" loop></audio>
+
+    <div class="logo-mark">
+        <img src="logo.png" alt="GDG logo">
+    </div>
+
+    <div id="scanlines"></div>
+    <div id="vignette"></div>
+    <div id="flashlight"></div>
+
+    <div id="intro-overlay">
+        <button id="enter-btn">ENTER THE VOID</button>
+    </div>
+
+    <div class="content-wrapper">
+        <h1 id="main-title" data-text="404 | NOT FOUND">404 | NOT FOUND</h1>
+        <div class="bar"></div>
+        <p id="sub-text">THE GATE IS LOCKED</p>
+    </div>
+
+    <button id="runaway-btn">OPEN THE GATE</button>
+
+    <div class="reveal-container" id="reveal-div">
+        <div class="meme-text">KYU NAHI HO RAHI PADHAI?</div>
+        <div style="font-family: 'Libre Baskerville', serif; font-size: 1.5rem; color: #fff; margin-top: 20px;">
+            FIRST TIME IN IET
+        </div>
+        <div class="sub-reveal">
+            SOMETHING BIG COMING ON 12-12-2025
+        </div>
+    </div>
+
+    <script>
+        const body = document.body;
+        const flashlight = document.getElementById('flashlight');
+        const overlay = document.getElementById('intro-overlay');
+        const audio = document.getElementById('bg-music');
+        const btn = document.getElementById('runaway-btn');
+        const content = document.querySelector('.content-wrapper');
+        const revealDiv = document.getElementById('reveal-div');
+
+        // GAME VARIABLES
+        let clicks = 0;
+        const targetClicks = 25;
+
+        // 1. ENTER
+        document.getElementById('enter-btn').addEventListener('click', () => {
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.remove(), 1500);
+            audio.volume = 0.5;
+            audio.play().catch(e => console.log("Audio needed interaction"));
+        });
+
+        // 2. FLASHLIGHT
+        document.addEventListener('mousemove', (e) => {
+            flashlight.style.setProperty('--x', e.clientX + 'px');
+            flashlight.style.setProperty('--y', e.clientY + 'px');
+        });
+
+        // 3. MOVE BUTTON FUNCTION
+        function teleportButton() {
+            const w = window.innerWidth;
+            const h = window.innerHeight;
+            // Ensure button stays within padding
+            const newX = Math.floor(Math.random() * (w - 200)) + 50; 
+            const newY = Math.floor(Math.random() * (h - 150)) + 100;
+
+            btn.style.left = newX + 'px';
+            btn.style.top = newY + 'px';
+            btn.style.transform = `rotate(${Math.random() * 20 - 10}deg)`;
+        }
+
+        // 4. CLICK LOGIC (THE GAME)
+        function registerClick(e) {
+            e.preventDefault(); // Stop double firing on some touch devices
+            
+            clicks++;
+            
+            // Visual Feedback for hit
+            body.style.backgroundColor = "#500";
+            setTimeout(() => { body.style.backgroundColor = "#050505"; }, 50);
+
+            // Check Win Condition
+            if (clicks >= targetClicks) {
+                triggerEnding();
+                return;
+            }
+
+            // Update Text to show progress (Gamification)
+            const percentage = Math.floor((clicks / targetClicks) * 100);
+            btn.innerText = `BREACHING: ${percentage}%`;
+            btn.style.borderColor = (clicks % 2 === 0) ? 'white' : 'red';
+
+            // Move the button immediately
+            teleportButton();
+        }
+
+        btn.addEventListener('click', registerClick);
+        btn.addEventListener('touchstart', registerClick, {passive: false});
+
+        // 5. HOVER BEHAVIOR (Make it chaotic but clickable)
+        // If we move it EVERY time on hover, 25 clicks is impossible. 
+        // So we move it only 30% of the time on hover, making it "glitchy" but hittable.
+        btn.addEventListener('mouseover', () => {
+            if (Math.random() > 0.7) { 
+                teleportButton();
+            }
+        });
+
+        // 6. ENDING SEQUENCE
+        function triggerEnding() {
+            btn.style.display = 'none';
+            content.style.display = 'none';
+            flashlight.style.opacity = '0'; // Turn off lights
+            
+            // Storm effect
+            body.classList.add('storm-mode');
+            
+            // Show Reveal
+            revealDiv.style.display = 'block';
+
+            if(audio) audio.volume = 1.0;
+        }
+
+        // CSS for storm added dynamically
+        const style = document.createElement('style');
+        style.innerHTML = `
+            .storm-mode { animation: storm 0.2s infinite; }
+            @keyframes storm {
+                0% { background: #000; }
+                45% { background: #200; }
+                50% { background: #f00; }
+                55% { background: #200; }
+                100% { background: #000; }
+            }
+        `;
+        document.head.appendChild(style);
+
+    </script>
+</body>
+</html>
